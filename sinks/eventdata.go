@@ -57,6 +57,15 @@ func NewEventData(eNew *v1.Event, eOld *v1.Event) EventData {
 	return eData
 }
 
+func (e *EventData) WriteJSON(w io.Writer) (int, error) {
+	var eJSONBytes []byte
+	var err error
+	if eJSONBytes, err = json.Marshal(e); err != nil {
+		return 0, fmt.Errorf("failed to json serialize event: %v", err)
+	}
+	return w.Write(eJSONBytes)
+}
+
 // WriteRFC5424 writes the current event data to the given io.Writer using
 // RFC5424 (syslog over TCP) syntax.
 func (e *EventData) WriteRFC5424(w io.Writer) (int64, error) {

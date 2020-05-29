@@ -19,6 +19,7 @@ package sinks
 import (
 	"bytes"
 	"net/http"
+	"os"
 
 	"github.com/eapache/channels"
 	"github.com/golang/glog"
@@ -130,17 +131,13 @@ func (h *HTTPSink) drainEvents(events []EventData) {
 	// Reuse the body buffer for each request
 	h.bodyBuf.Truncate(0)
 
-	var written int64
 	for _, evt := range events {
-		w, err := evt.WriteRFC5424(h.bodyBuf)
-		written += w
+		_, err := evt.WriteJSON(h.bodyBuf)
 		if err != nil {
-			glog.Warningf("Could not write to event request body (wrote %v) bytes: %v", written, err)
+			glog.Warningf("Could not write to event request body bytes: %v", err)
 			return
 		}
-
 		h.bodyBuf.Write([]byte{'\n'})
-		written++
 	}
 
 	req, err := http.NewRequest("POST", h.SinkURL, h.bodyBuf)
@@ -149,6 +146,11 @@ func (h *HTTPSink) drainEvents(events []EventData) {
 		return
 	}
 
+	if clusterName, ok := os.LookupEnv("CLUSTER_NAME"); ok {
+		req.Header.Set("X-Cluster", clusterName)
+	}
+
+	req.Header.Set("Content-Type", "application/json")
 	resp, err := h.httpClient.Do(req)
 	if err != nil {
 		glog.Warningf(err.Error())
