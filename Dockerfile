@@ -20,7 +20,6 @@ RUN CGO_ENABLED=0 GOOS=linux go build
 
 
 FROM ubuntu:focal
-COPY --from=builder /build/eventrouter /app
-USER nobody:nobody
+COPY --from=builder /build/eventrouter /app/
 
 CMD ["/bin/sh", "-c", "/app/eventrouter -v 3 -logtostderr"]
