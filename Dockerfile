@@ -14,6 +14,9 @@
 
 FROM golang:1.13 as builder
 
+#Store this image indefinitely in Joom Artifactory
+LABEL com.joom.retention.maxCount=-1
+
 WORKDIR /build
 ADD . .
 RUN CGO_ENABLED=0 GOOS=linux go build
