@@ -15,7 +15,7 @@
 FROM golang:1.13 as builder
 
 #Store this image indefinitely in Joom Artifactory
-LABEL com.joom.retention.maxCount=-1
+LABEL com.joom.retention.maxDays=-1
 
 WORKDIR /build
 ADD . .
