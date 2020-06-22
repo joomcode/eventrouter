@@ -14,15 +14,13 @@
 
 FROM golang:1.13 as builder
 
-#Store this image indefinitely in Joom Artifactory
-LABEL com.joom.retention.maxDays=-1
-
 WORKDIR /build
 ADD . .
 RUN CGO_ENABLED=0 GOOS=linux go build
 
-
 FROM ubuntu:focal
+#Store this image indefinitely in Joom Artifactory
+LABEL com.joom.retention.maxDays=-1
 COPY --from=builder /build/eventrouter /app/
 
 CMD ["/bin/sh", "-c", "/app/eventrouter -v 3 -logtostderr"]
